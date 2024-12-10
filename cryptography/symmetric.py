@@ -40,6 +40,33 @@ def xor(a, b):
 	return ans
 
 
+#key Generation Functions
+def generate_round_keys(key):
+    #permute the key to 56 bits
+    key = permute(key, PC_1, 56)
+
+    #splitting into two halves
+    left = key[0:28]
+    right = key[28:56]
+
+    round_keys_binary = []
+    round_keys = []
+
+    #generating the 16 keys
+    for i in range(0, 16):
+        #shifting the bits
+        left = shift_left(left, BITS_ROTATION[i])
+        right = shift_left(right, BITS_ROTATION[i])
+
+        #combine halves and compress to 48 bits
+        combine_str = left + right
+        round_key = permute(combine_str, COMPRESSION_PERMUTATION, 48)
+
+        round_keys_binary.append(round_key)
+        round_keys.append(bin2hex(round_key))
+
+    return round_keys_binary, round_keys
+
 #main encryption function
 def encrypt(plain_text, round_keys_binary, round_keys):
 	plain_text = hex2bin(plain_text)
@@ -88,46 +115,25 @@ def encrypt(plain_text, round_keys_binary, round_keys):
 	return cipher_text
 
 
+'''
+TEST PROGRAM
 plain_text = "123456ABCD132536"
 key = "AABB09182736CCDD"
 
-# --hex to binary
-key = hex2bin(key)
+#generate keys
+key_binary = hex2bin(key)
+round_keys_binary, round_keys = generate_round_keys(key_binary)
 
-#getting 56 bit key from 64 bit using the parity bits
-key = permute(key, PC_1, 56)
-
-#splitting
-left = key[0:28] # round_keys_binar
-right = key[28:56] # round_keys in hexadecimal
-
-round_keys_binary = []
-round_keys = []
-for i in range(0, 16):
-	#shifting the bits by nth shifts by checking from shift table
-	left = shift_left(left, BITS_ROTATION[i])
-	right = shift_left(right, BITS_ROTATION[i])
-
-	#combination of left and right string
-	combine_str = left + right
-
-	#compression of key from 56 to 48 bits
-	round_key = permute(combine_str, COMPRESSION_PERMUTATION, 48)
-
-	round_keys_binary.append(round_key)
-	round_keys.append(bin2hex(round_key))
-
-'''
-print("original text:", plain_text)
-print("Encryption")
+#encrypt
+print("Original Text:", plain_text)
 cipher_text = bin2hex(encrypt(plain_text, round_keys_binary, round_keys))
-print("Cipher Text : ", cipher_text)
+print("Cipher Text :", cipher_text)
 
-print("Decryption")
+#decrypt
 rkb_rev = round_keys_binary[::-1]
 rk_rev = round_keys[::-1]
-text = bin2hex(encrypt(cipher_text, rkb_rev, rk_rev))
-print("Plain Text : ", text)
+decrypted_text = bin2hex(encrypt(cipher_text, rkb_rev, rk_rev))
+print("Decrypted Text :", decrypted_text)
 '''
 
 '''
