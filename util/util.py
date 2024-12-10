@@ -97,3 +97,20 @@ def char2hex(character):
 #hexadecimal to character
 def hex2char(hex_input):
     return chr(bin2dec(hex2bin(hex_input)))
+
+def string_to_hex(input):
+    padded_string = padder(input)
+    hex_string = ""
+    for i in range(len(padded_string)):
+        character_hex = char2hex(padded_string[i])
+        hex_string = hex_string + character_hex
+    #print('string to hex: ', hex_string)
+    return hex_string
+
+def hex_to_string(input):
+    string_output = ""
+    for i in range(0, len(input), 2):
+        character = hex2char(input[i]+input[i+1])
+        string_output = string_output + character
+    #print('normal_string = ', string_output)
+    return string_output

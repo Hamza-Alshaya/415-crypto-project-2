@@ -1,3 +1,11 @@
+'''
+#TODO:
+    - Create a function that splits a hex padded string into 8 bytes (64 bits) section/blocks, possibly into an array (internal function)
+    - Create a function that applies the encryption on each section/block from the array above, then returns the encrypted string (as one string, not an array)
+    - Create a function that applies the decryption on each section/block. Takes an encrypted string, splits into sections of 8 bytes, decrypts each and concat
+    By then we would be finally done with symmetric algorithms!
+'''
+
 import sys
 sys.path.append('./')
 
@@ -7,7 +15,7 @@ from util.util import dec2bin, bin2dec, bin2hex, hex2bin, hex2char, char2hex
 ##########################################
 # constant DES tables were provided by wikipedia's page 'DES supplementary material':   https://en.wikipedia.org/wiki/DES_supplementary_material
 # This code is HEAVILY inspired from Aditya Jain's implementation on GeeksforGeeks :    https://www.geeksforgeeks.org/data-encryption-standard-des-set-1/
-# The implementation was then further enhanced to accept larger plain texts (TODO)
+# The implementation was then further enhanced to accept larger plain texts split into chunks (TODO)
 ##########################################
 
 #permute function to rearrange the bits
@@ -149,3 +157,13 @@ to_hex = char2hex(character)
 print(f'to hex = {to_hex}')
 print(f'Back to character: {hex2char(to_hex)}')
 '''
+def padder(input_string):
+    print("length = ", len(input_string))
+    if(len(input_string)%8 !=0):
+        mod_value = len(input_string) % 8
+        print('mod value = ', mod_value)
+        number_of_pads = 8-mod_value
+        for i in range (number_of_pads):
+            input_string = input_string + " "
+        print("new length = ", len(input_string))
+    return input_string
