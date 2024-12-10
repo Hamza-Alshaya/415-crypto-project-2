@@ -114,9 +114,14 @@ def encrypt(plain_text, round_keys_binary, round_keys):
 	cipher_text = permute(combine, IP_INVERSE, 64)
 	return cipher_text
 
+def decrypt(plain_text, round_keys_binary, round_keys):
+    rkb_rev = round_keys_binary[::-1]
+    rk_rev = round_keys[::-1]
+    decrypted_text = bin2hex(encrypt(cipher_text, rkb_rev, rk_rev))
+    return decrypted_text
 
 '''
-TEST PROGRAM
+#TEST PROGRAM
 plain_text = "123456ABCD132536"
 key = "AABB09182736CCDD"
 
@@ -130,11 +135,11 @@ cipher_text = bin2hex(encrypt(plain_text, round_keys_binary, round_keys))
 print("Cipher Text :", cipher_text)
 
 #decrypt
-rkb_rev = round_keys_binary[::-1]
-rk_rev = round_keys[::-1]
-decrypted_text = bin2hex(encrypt(cipher_text, rkb_rev, rk_rev))
+decrypted_text = decrypt(plain_text, round_keys_binary, round_keys)
+
 print("Decrypted Text :", decrypted_text)
 '''
+
 
 '''
 #test hex char2hex and hex2char
