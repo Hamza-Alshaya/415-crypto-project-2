@@ -2,6 +2,7 @@ import util.commands
 
 #terminal emulator function:
 def terminal_emulator():
+    #read input and pass it to read command method to determine the type of command
     input_string = input()
     macro = util.commands.read_command(input_string)
     
@@ -20,4 +21,5 @@ def terminal_emulator():
     elif macro == util.commands.PLAIN_TEXT:
         return input_string
     elif macro == util.commands.EMPTY_STRING:
+        #We will send a space character to avoid errors with the encode() function
         return " "

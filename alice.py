@@ -20,10 +20,11 @@ def handle_receive(connection):
         print("READING THREAD: Connection closed by main thread, exiting.")
     finally:
         connection.close()
-        dotenv.alice_connection_flag = False
+        dotenv.alice_connection_flag = False    #set flag to false to alert the main thread that the connetion was closed
 
 
 def main():
+    #server socket creation routine
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(('', dotenv.alice_port))
     sock.listen(1)
@@ -33,11 +34,11 @@ def main():
     print(f'Connection established with Bob on address:{address}')
     dotenv.alice_connection_flag = True
     
-    # Start a thread for receiving messages
+    #start a thread for receiving messages
     receive_thread = Thread(target=handle_receive, args=(connection,))
     receive_thread.start()
     
-    # Main thread sends messages
+    #main thread sends messages
     while True:
         message = terminal_emulator()
         if (message == f'/{util.commands.EXIT_COMMAND}'):
@@ -47,6 +48,7 @@ def main():
         elif (message == '/'):
             continue
         
+        #check flag before sending to avoid errors
         elif dotenv.alice_connection_flag:
             connection.send(message.encode())
         else:

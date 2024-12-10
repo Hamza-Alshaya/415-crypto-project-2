@@ -20,11 +20,12 @@ def handle_receive(sock):
         print("READING THREAD: Connection closed by main thread, exiting.")
     finally:
         sock.close()
-        dotenv.bob_connection_flag = False
+        dotenv.bob_connection_flag = False      #set flag to false to alert the main thread that the connetion was closed
 
 
 
 def main():
+    #client socket connection routine
     sock = socket.socket()
     sock.connect((dotenv.alice_ip, dotenv.alice_port))
     print('Connection established with Alice.')
@@ -45,6 +46,7 @@ def main():
         elif (message == '/'):
             continue
         
+        #check flag before sending to avoid errors
         elif dotenv.bob_connection_flag:
             sock.send(message.encode())
         else:
