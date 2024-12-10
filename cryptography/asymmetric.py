@@ -3,22 +3,15 @@
 from Crypto.Util import number
 import base64
 
-#convert a string to encoded utf-8 bytes, then convert those bytes to an integer
-def encode_string(input_string):
-    encoded_bytes = input_string.encode('ascii')
-    encoded_integer = int.from_bytes(encoded_bytes, byteorder='big')
-    return encoded_integer
-
-#reverse operation: convert an integer to bytes, then decode the bytes to an ascii string
-def decode_string(input_encoded_integer):
-    decoded_bytes = input_encoded_integer.to_bytes((input_encoded_integer.bit_length() + 7) // 8, byteorder='big')
-    decoded_message = decoded_bytes.decode('ascii')
-    return decoded_message
+import sys
+sys.path.append('./')
+import util.config_file
+import util.util
 
 def generate_rsa_keys():
     #step 1: get 2 random prime numbers of specified size
-    p = number.getPrime(1024)
-    q = number.getPrime(1024)
+    p = number.getPrime(util.config_file.rsa_key_size//2)
+    q = number.getPrime(util.config_file.rsa_key_size//2)
 
     #step 2: calculate n, totient phi(n), and choose a public e
     n = p*q
@@ -33,6 +26,16 @@ def generate_rsa_keys():
     decryption = (d, n)        #private key pair for decryption
     
     return encryption, decryption
+
+def rsa_encrypt(string, key_pair):
+    text_converted = util.util.encode_string(string)
+    text_encrypted = pow(text_converted, key_pair[0], key_pair[1])
+    return text_encrypted
+
+def rsa_decrypt(string, key_pair):
+    text_decrypted = pow(string, key_pair[0], key_pair[1])
+    text_decoded = util.util.decode_string(text_decrypted)
+    return text_decoded
 
 '''
 #TESTING the algorithm on text

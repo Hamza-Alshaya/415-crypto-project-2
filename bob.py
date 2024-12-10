@@ -1,9 +1,9 @@
 import socket
 from threading import Thread
 
-import dotenv
-import util.commands
-from util.terminal_emulator import terminal_emulator
+import util.config_file
+import console.commands
+from console.terminal_emulator import terminal_emulator
 
 
 #handle receiving messages here
@@ -13,23 +13,23 @@ def handle_receive(sock):
             message = sock.recv(2048).decode()
             if not message:
                 break
-            print(f"Alice: {message}")
+            print(f"\nAlice: {message}")
             
     #gracefully exit and close socket when main thread closes the connection
     except (ConnectionAbortedError, OSError):
         print("READING THREAD: Connection closed by main thread, exiting.")
     finally:
         sock.close()
-        dotenv.bob_connection_flag = False      #set flag to false to alert the main thread that the connetion was closed
+        util.config_file.bob_connection_flag = False      #set flag to false to alert the main thread that the connetion was closed
 
 
 
 def main():
     #client socket connection routine
     sock = socket.socket()
-    sock.connect((dotenv.alice_ip, dotenv.alice_port))
+    sock.connect((util.config_file.alice_ip, util.config_file.alice_port))
     print('Connection established with Alice.')
-    dotenv.bob_connection_flag = True
+    util.config_file.bob_connection_flag = True
 
     
     #start the thread for receiving messages
@@ -38,8 +38,8 @@ def main():
     
     #main thread will send messages here
     while True:
-        message = terminal_emulator()
-        if (message == f'/{util.commands.EXIT_COMMAND}'):
+        message = terminal_emulator(name='Bob')
+        if (message == f'/{console.commands.EXIT_COMMAND}'):
             sock.close()
             break
         
@@ -47,7 +47,7 @@ def main():
             continue
         
         #check flag before sending to avoid errors
-        elif dotenv.bob_connection_flag:
+        elif util.config_file.bob_connection_flag:
             sock.send(message.encode())
         else:
             print('Server closed the connection.')
