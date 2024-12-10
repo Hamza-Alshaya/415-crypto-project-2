@@ -1,6 +1,10 @@
 import dotenv
+import util.commands
+from util.terminal_emulator import terminal_emulator
+
 import socket
 from threading import Thread
+
 
 #handle receiving messages here
 def handle_receive(connection):
@@ -16,8 +20,7 @@ def handle_receive(connection):
         print("READING THREAD: Connection closed by main thread, exiting.")
     finally:
         connection.close()
-        dotenv.alice_connection_flag
-
+        dotenv.alice_connection_flag = False
 
 
 def main():
@@ -27,7 +30,7 @@ def main():
     print('Alice is listening for a connection')
     
     connection, address = sock.accept()
-    print(f'Connection established with {address}')
+    print(f'Connection established with Bob on address:{address}')
     dotenv.alice_connection_flag = True
     
     # Start a thread for receiving messages
@@ -36,10 +39,14 @@ def main():
     
     # Main thread sends messages
     while True:
-        message = input("")
-        if (message == '/close' or message == '/c'):
+        message = terminal_emulator()
+        if (message == f'/{util.commands.EXIT_COMMAND}'):
             connection.close()
             break
+        
+        elif (message == '/'):
+            continue
+        
         elif dotenv.alice_connection_flag:
             connection.send(message.encode())
         else:

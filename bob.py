@@ -1,6 +1,10 @@
-import dotenv
 import socket
 from threading import Thread
+
+import dotenv
+import util.commands
+from util.terminal_emulator import terminal_emulator
+
 
 #handle receiving messages here
 def handle_receive(sock):
@@ -33,10 +37,14 @@ def main():
     
     #main thread will send messages here
     while True:
-        message = input("")
-        if (message == '/close' or message == '/c'):
+        message = terminal_emulator()
+        if (message == f'/{util.commands.EXIT_COMMAND}'):
             sock.close()
             break
+        
+        elif (message == '/'):
+            continue
+        
         elif dotenv.bob_connection_flag:
             sock.send(message.encode())
         else:
