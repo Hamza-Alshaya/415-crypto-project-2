@@ -1,5 +1,4 @@
 from cryptography.asymmetric import generate_rsa_keys, rsa_encrypt, rsa_decrypt
-from util.util import encode_string, decode_string
 
 #TESTING the algorithm on text
 
