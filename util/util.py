@@ -1,4 +1,4 @@
-#convert a string to encoded utf-8 bytes, then convert those bytes to an integer
+#convert a string to encoded ascii bytes, then convert those bytes to an integer
 def encode_string(input_string):
     encoded_bytes = input_string.encode('ascii')
     encoded_integer = int.from_bytes(encoded_bytes, byteorder='big')
@@ -68,12 +68,12 @@ def bin2hex(s):
 # Binary to decimal conversion
 def bin2dec(binary):
 
-	binary1 = binary
+	binary1 = int(binary)
 	decimal, i, n = 0, 0, 0
-	while(binary != 0):
-		dec = binary % 10
+	while(binary1 != 0):
+		dec = binary1 % 10
 		decimal = decimal + dec * pow(2, i)
-		binary = binary//10
+		binary1 = binary1//10
 		i += 1
 	return decimal
 
@@ -89,3 +89,11 @@ def dec2bin(num):
 		for i in range(0, counter):
 			res = '0' + res
 	return res
+
+#character to hexadecimal
+def char2hex(character):
+    return bin2hex(dec2bin(ord(character)))
+
+#hexadecimal to character
+def hex2char(hex_input):
+    return chr(bin2dec(hex2bin(hex_input)))

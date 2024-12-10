@@ -2,7 +2,7 @@ import sys
 sys.path.append('./')
 
 from cryptography.des_resources import S_BOX, IP, E, P, IP_INVERSE, PC_1, BITS_ROTATION, COMPRESSION_PERMUTATION
-from util.util import dec2bin, bin2dec, bin2hex, hex2bin
+from util.util import dec2bin, bin2dec, bin2hex, hex2bin, hex2char, char2hex
 
 ##########################################
 # constant DES tables were provided by wikipedia's page 'DES supplementary material':   https://en.wikipedia.org/wiki/DES_supplementary_material
@@ -117,6 +117,7 @@ for i in range(0, 16):
 	round_keys_binary.append(round_key)
 	round_keys.append(bin2hex(round_key))
 
+'''
 print("original text:", plain_text)
 print("Encryption")
 cipher_text = bin2hex(encrypt(plain_text, round_keys_binary, round_keys))
@@ -127,3 +128,13 @@ rkb_rev = round_keys_binary[::-1]
 rk_rev = round_keys[::-1]
 text = bin2hex(encrypt(cipher_text, rkb_rev, rk_rev))
 print("Plain Text : ", text)
+'''
+
+'''
+#test hex char2hex and hex2char
+character = 'H'
+print(f'character = {character}')
+to_hex = char2hex(character)
+print(f'to hex = {to_hex}')
+print(f'Back to character: {hex2char(to_hex)}')
+'''
