@@ -4,13 +4,15 @@ from threading import Thread
 import util.config_file
 import console.commands
 from console.terminal_emulator import terminal_emulator
-
+from cryptography.symmetric import encrypt_des, decrypt_des
+import cryptography.variables
 
 #handle receiving messages here
 def handle_receive(sock):
     try:
         while True:
             message = sock.recv(2048).decode()
+            message = decrypt_des(message, cryptography.variables.bob_sym_key)
             if not message:
                 break
             print(f"\nAlice: {message}")
@@ -34,7 +36,7 @@ def main():
     ##################################
     #SYMMETRIC KEY EXCHANGE PROTOCOL:
     from cryptography.secure_messages_protocol import secure_messages_protocol
-    secure_messages_protocol(sock, name='bob')
+    cryptography.variables.bob_sym_key = secure_messages_protocol(sock, name='bob')
     ##################################
 
     #start the thread for receiving messages
@@ -53,7 +55,7 @@ def main():
         
         #check flag before sending to avoid errors
         elif util.config_file.bob_connection_flag:
-            sock.send(message.encode())
+            sock.send(encrypt_des(message, cryptography.variables.bob_sym_key).encode())
         else:
             print('Server closed the connection.')
             break

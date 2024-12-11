@@ -1,15 +1,19 @@
 import util.config_file
+import cryptography.variables
 import console.commands
 from console.terminal_emulator import terminal_emulator
 
 import socket
 from threading import Thread
+from cryptography.symmetric import encrypt_des, decrypt_des
+
 
 #handle receiving messages here
 def handle_receive(connection):
     try:
         while True:
             message = connection.recv(2048).decode()
+            message = decrypt_des(message, cryptography.variables.alice_sym_key)
             if not message:
                 break
             print(f"\nBob: {message}")
@@ -36,7 +40,7 @@ def main():
     ##################################
     #SYMMETRIC KEY EXCHANGE PROTOCOL:
     from cryptography.secure_messages_protocol import secure_messages_protocol
-    secure_messages_protocol(connection, name='alice')
+    cryptography.variables.alice_sym_key = secure_messages_protocol(connection, name='alice')
     ##################################
 
     #start a thread for receiving messages
@@ -55,7 +59,7 @@ def main():
         
         #check flag before sending to avoid errors
         elif util.config_file.alice_connection_flag:
-            connection.send(message.encode())
+            connection.send(encrypt_des(message, cryptography.variables.alice_sym_key).encode())
         else:
             print('Client closed the connection.')
             break
