@@ -10,6 +10,12 @@ from util.util import dec2bin, bin2dec, bin2hex, hex2bin, hex2char, char2hex, pa
 # The implementation was then further enhanced to accept larger plain texts split into chunks (TODO)
 ##########################################
 
+#generate a 64 bit key given a seed
+def generate_64b_key(input_number):
+	pass
+
+
+
 #permute function to rearrange the bits
 def permute(k, arr, n):
 	permutation = ""

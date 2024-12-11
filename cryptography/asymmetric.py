@@ -1,13 +1,13 @@
 #RSA
 
 from Crypto.Util import number
-import base64
 
 import sys
 sys.path.append('./')
 import util.config_file
 import util.util
 
+#returns public, private keys
 def generate_rsa_keys():
     #step 1: get 2 random prime numbers of specified size
     p = number.getPrime(util.config_file.rsa_key_size//2)

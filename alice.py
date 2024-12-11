@@ -5,7 +5,6 @@ from console.terminal_emulator import terminal_emulator
 import socket
 from threading import Thread
 
-
 #handle receiving messages here
 def handle_receive(connection):
     try:
@@ -34,6 +33,12 @@ def main():
     print(f'Connection established with Bob on address:{address}')
     util.config_file.alice_connection_flag = True
     
+    ##################################
+    #SYMMETRIC KEY EXCHANGE PROTOCOL:
+    from cryptography.secure_messages_protocol import secure_messages_protocol
+    secure_messages_protocol(connection, name='alice')
+    ##################################
+
     #start a thread for receiving messages
     receive_thread = Thread(target=handle_receive, args=(connection,))
     receive_thread.start()

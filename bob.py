@@ -31,7 +31,12 @@ def main():
     print('Connection established with Alice.')
     util.config_file.bob_connection_flag = True
 
-    
+    ##################################
+    #SYMMETRIC KEY EXCHANGE PROTOCOL:
+    from cryptography.secure_messages_protocol import secure_messages_protocol
+    secure_messages_protocol(sock, name='bob')
+    ##################################
+
     #start the thread for receiving messages
     receive_thread = Thread(target=handle_receive, args=(sock,))
     receive_thread.start()
