@@ -2,6 +2,8 @@ import sys
 sys.path.append('./')
 from cryptography.asymmetric import generate_rsa_keys, rsa_encrypt, rsa_decrypt
 from cryptography.diffie_hellman import generator, agreement
+from cryptography.symmetric import generate_64b_key
+from cryptography.md5 import md5_hash
 
 from Crypto.Util.number import getPrime
 
@@ -28,7 +30,11 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         bob_pdh = pickle.loads(connection_socket.recv(2048))
         alice_sc = agreement(bob_pdh, alice_dh_secret)
         print('shared secret = ', alice_sc)
+        
+        alice_sym_key = generate_64b_key(str(alice_sc))
+        print('generated key = ', alice_sym_key)
 
+        
 
 
 
@@ -53,7 +59,8 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         connection_socket.sendall(pickle.dumps(bob_dh_public))
         print('shared secret = ', bob_sc)
 
-
+        bob_sym_key = generate_64b_key(str(bob_sc))
+        print('generated key = ', bob_sym_key)
 
 
 

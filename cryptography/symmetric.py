@@ -3,7 +3,7 @@ sys.path.append('./')
 
 from cryptography.des_resources import S_BOX, IP, E, P, IP_INVERSE, PC_1, BITS_ROTATION, COMPRESSION_PERMUTATION
 from util.util import dec2bin, bin2dec, bin2hex, hex2bin, hex2char, char2hex, padder, string_to_hex, hex_to_string
-
+from cryptography.md5 import md5_hash
 ##########################################
 # constant DES tables were provided by wikipedia's page 'DES supplementary material':   https://en.wikipedia.org/wiki/DES_supplementary_material
 # This code is HEAVILY inspired from Aditya Jain's implementation on GeeksforGeeks :    https://www.geeksforgeeks.org/data-encryption-standard-des-set-1/
@@ -11,9 +11,9 @@ from util.util import dec2bin, bin2dec, bin2hex, hex2bin, hex2char, char2hex, pa
 ##########################################
 
 #generate a 64 bit key given a seed
-def generate_64b_key(input_number):
-	pass
-
+def generate_64b_key(input_string):
+	hashed_input = md5_hash(input_string)
+	return hashed_input[:16]
 
 
 #permute function to rearrange the bits
