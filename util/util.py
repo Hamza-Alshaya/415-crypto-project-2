@@ -119,7 +119,8 @@ def padder(input_string, padding_value=8):
     return input_string
 
 #text string to hex string
-def string_to_hex(input, padding_value=0):
+def string_to_hex(input, padding_value=0
+):
     padded_string = padder(input, padding_value=padding_value)
     hex_string = ""
     for i in range(len(padded_string)):
@@ -136,3 +137,15 @@ def hex_to_string(input):
         string_output = string_output + character
     #print('normal_string = ', string_output)
     return string_output
+
+def binary_add(a, b, c, bits=32):
+    #calculate the maximum value for the given byte size (32 bits)
+    max_value = (1 << (bits)) - 1 
+    
+    #add the two integers
+    result = a + b + c
+    
+    #apply the mask to ignore the overflow and keep the result within the byte size
+    result = result & max_value
+    
+    return result

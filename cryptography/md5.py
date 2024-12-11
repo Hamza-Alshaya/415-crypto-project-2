@@ -1,11 +1,24 @@
 import sys
 sys.path.append('./')
-from util.util import hex_to_string, string_to_hex, hex2bin, bin2hex, dec2bin
+from util.util import hex_to_string, string_to_hex, hex2bin, bin2hex, dec2bin, binary_add
+from cryptography.md5_resources import K, SHIFT_AMOUNT, A, B, C, D
 
-A = 0x67452301
-B = 0xefcdab89
-C = 0x98badcfe
-D = 0x10325476
+def rotate_bits(num, rot):
+    return ((num << rot) | (num >> (32 - rot))) & 0xFFFFFFFF
+
+def F(b, c, d, i):
+    if i >= 0 and i < 16:
+        return (b & c) | ((~b) & d)
+    elif i >= 16 and i < 32:
+        return (b & d) | (c & (~d))
+    elif i >= 32 and i < 48:
+        return b ^ c ^ d
+
+    elif i >= 48 and i < 64:
+        return c ^ (b | (~d))
+
+def redBox(value, i):
+    return rotate_bits(binary_add(value,K[i],0,bits=32), SHIFT_AMOUNT[i])
 
 def md5_hash(input_string):
     binary_string = ""
@@ -46,11 +59,42 @@ def md5_hash(input_string):
     #print('after appending size:\t', binary_string)
     #print('% 512 ==', len(binary_string) % 512)
 
-        
+    divided_words = []
+    for i in range(16):
+        divided_words.append(binary_string[:32])
+        binary_string = binary_string[32:]
+    
+    a = A
+    b = B
+    c = C
+    d = D
 
+    for i in range(64):
+        a_p = d
+        c_p = b
+        d_p = c
+
+        print(f'i = {i}\nA TYPE:{type(a)}\nF(B,C,D,I) TYPE:{type(F(b,c,d,i))}\nDIVIDEDWORDTYPE:{type(int(divided_words[i%16],2))}\n\n')
+        if i >= 0 and i < 16:
+            b_p = redBox(binary_add(a, F(b,c,d,i), int(divided_words[i%16],2)),i)
+        elif i >= 16 and i < 32:
+            b_p = redBox(binary_add(a, F(b,c,d,i), int(divided_words[(5*i+1)%16],2)),i)
+        elif i >= 32 and i < 48:
+            b_p = redBox(binary_add(a, F(b,c,d,i), int(divided_words[(3*i+5)%16],2)),i)
+        elif i >= 48 and i < 64:
+            b_p = redBox(binary_add(a, F(b,c,d,i), int(divided_words[(7*i)%16],2)),i)
+
+        a = a_p
+        b = b_p
+        c = c_p
+        d = d_p
+    
+    return  str(hex(a)[2:] + hex(b)[2:] + hex(b)[2:] + hex(b)[2:]).upper()
 
     #if (len(input_string.encode('ascii'))*8 % 512 == 448):
     #    input_string = input_string + '1'
     #    pass
 
-md5_hash('ABC')
+
+print(md5_hash('ABC'))
+print((int('1001',2)))
