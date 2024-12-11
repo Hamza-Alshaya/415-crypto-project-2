@@ -24,4 +24,4 @@ def terminal_emulator(name='myName'):
         return input_string
     elif macro == console.commands.EMPTY_STRING:
         #We will send a space character to avoid errors with the encode() function
-        return " "
+        return "/"

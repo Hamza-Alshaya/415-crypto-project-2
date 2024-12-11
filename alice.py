@@ -9,7 +9,7 @@ import requests
 
 from threading import Thread
 from cryptography.symmetric import encrypt_des, decrypt_des
-from cryptography.asymmetric import generate_rsa_keys
+from cryptography.asymmetric import generate_rsa_keys, rsa_encrypt, rsa_decrypt
 
 from cryptography.md5 import md5_hash
 
@@ -23,6 +23,22 @@ def handle_receive(connection):
             if not message:
                 print('ERROR: couldn\'t properly parse received message...' )
                 break
+            
+            message_hash = md5_hash(message)
+            message_decrypted_hash = rsa_decrypt(message_object['message_hash_encrypted'],cryptography.variables.bob_public_pair)
+            if not message_decrypted_hash:
+                print('ERROR: couldn\'t properly parse encrypted hashed message...' )
+            
+            if (message_hash == message_decrypted_hash):
+                print('Hash match.')
+            else:
+                print("Not a hash match")
+                print(f'encrypted hash:{rsa_decrypt(message_object["message_hash_encrypted"],cryptography.variables.alice_public_pair)}')
+                print(f'normal hash: {message_hash}')
+                print(f'md5(message): {md5_hash(message)}')
+                print(f'message: \"{message}\"')
+                exit(0)
+            
             print(f"\nBob: {message}")
             
     #gracefully exit and close socket when main thread closes the connection
@@ -66,7 +82,7 @@ def main():
     ##################################
     #SYMMETRIC KEY EXCHANGE PROTOCOL:
     from cryptography.secure_messages_protocol import secure_messages_protocol
-    cryptography.variables.alice_sym_key = secure_messages_protocol(connection, name='alice')
+    cryptography.variables.alice_sym_key, cryptography.variables.bob_public_pair = secure_messages_protocol(connection, name='alice')
     ##################################
 
     #start a thread for receiving messages
@@ -86,12 +102,14 @@ def main():
         #check flag before sending to avoid errors
         elif util.config_file.alice_connection_flag:
             #create the message object:
+            message = message.rstrip()
             message_object ={
                 'message_content': encrypt_des(message,cryptography.variables.alice_sym_key),
-                'message_hash_encrypted': encrypt_des(md5_hash(message),cryptography.variables.alice_sym_key)
+                'message_hash_encrypted': rsa_encrypt(md5_hash(message),cryptography.variables.alice_private_pair)
             }
             
             connection.sendall(pickle.dumps(message_object))
+            #print(f'hashed message: {md5_hash(message)}')
         else:
             print('Bob closed the connection.')
             break

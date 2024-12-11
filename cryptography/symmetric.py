@@ -205,7 +205,7 @@ def decrypt_des(input_string, key):
 		#decrypted_blocks.append(decrypted_block)
 		output_string = output_string+decrypted_block
 	#print('decrypted blocks = ', decrypted_blocks)
-	return output_string
+	return output_string.rstrip()
 	
 '''
 #MAIN DRIVER TESTER: can accept any string

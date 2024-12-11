@@ -72,7 +72,7 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         alice_sym_key = generate_64b_key(str(alice_sc))
         print('generated key = ', alice_sym_key)
 
-        return alice_sym_key
+        return alice_sym_key, bob_pk
         
 
 
@@ -101,7 +101,7 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         bob_sym_key = generate_64b_key(str(bob_sc))
         print('generated key = ', bob_sym_key)
 
-        return bob_sym_key
+        return bob_sym_key, alice_pk
 
 
 
