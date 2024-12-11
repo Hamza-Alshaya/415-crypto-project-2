@@ -104,20 +104,23 @@ def hex2char(hex_input):
     return chr(bin2dec(hex2bin(hex_input)))
 
 #pads a string so that its length is a multiple of eight
-def padder(input_string):
+def padder(input_string, padding_value=8):
+    if (padding_value == 0):
+        return input_string
+    
     #print("length = ", len(input_string))
-    if(len(input_string)%8 !=0):
-        mod_value = len(input_string) % 8
+    if(len(input_string)%padding_value !=0):
+        mod_value = len(input_string) % padding_value
         #print('mod value = ', mod_value)
-        number_of_pads = 8-mod_value
+        number_of_pads = padding_value-mod_value
         for i in range (number_of_pads):
             input_string = input_string + " "
         #print("new length = ", len(input_string))
     return input_string
 
 #text string to hex string
-def string_to_hex(input):
-    padded_string = padder(input)
+def string_to_hex(input, padding_value=0):
+    padded_string = padder(input, padding_value=padding_value)
     hex_string = ""
     for i in range(len(padded_string)):
         character_hex = char2hex(padded_string[i])

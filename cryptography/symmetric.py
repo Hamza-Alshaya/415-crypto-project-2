@@ -188,7 +188,7 @@ def encrypt_des(input_string, key):
 	output_hex = ""
 
 	for string in blocks_string_list:
-		encrypted_block = encrypt(string_to_hex(string), key)
+		encrypted_block = encrypt(string_to_hex(string, padding_value=8), key)
 		#encrypted_blocks.append(encrypted_block)
 		output_hex = output_hex + encrypted_block
 
