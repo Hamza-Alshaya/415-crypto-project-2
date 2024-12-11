@@ -1,3 +1,8 @@
+#This file contains utility functions that are used across various implementations/functions of this project
+#Functions here do not adhere to a specific pattern, it just contains generic functions that are not tied specifically to a system-
+#and can be safely separated from said implementation
+
+
 #convert a string to encoded ascii bytes, then convert those bytes to an integer
 def encode_string(input_string):
     encoded_bytes = input_string.encode('ascii')
@@ -33,7 +38,7 @@ def hex2bin(s):
 		bin = bin + mp[s[i]]
 	return bin
 
-# Binary to hexadecimal conversion
+#binary to hexadecimal conversion
 
 
 def bin2hex(s):
@@ -65,7 +70,7 @@ def bin2hex(s):
 	return hex
 
 
-# Binary to decimal conversion
+#binary to decimal conversion
 def bin2dec(binary):
 
 	binary1 = int(binary)
@@ -77,7 +82,7 @@ def bin2dec(binary):
 		i += 1
 	return decimal
 
-# Decimal to binary conversion
+#becimal to binary conversion
 
 
 def dec2bin(num):
@@ -98,6 +103,7 @@ def char2hex(character):
 def hex2char(hex_input):
     return chr(bin2dec(hex2bin(hex_input)))
 
+#pads a string so that its length is a multiple of eight
 def padder(input_string):
     #print("length = ", len(input_string))
     if(len(input_string)%8 !=0):
@@ -109,6 +115,7 @@ def padder(input_string):
         #print("new length = ", len(input_string))
     return input_string
 
+#text string to hex string
 def string_to_hex(input):
     padded_string = padder(input)
     hex_string = ""
@@ -118,6 +125,7 @@ def string_to_hex(input):
     #print('string to hex: ', hex_string)
     return hex_string
 
+#hex string to text string
 def hex_to_string(input):
     string_output = ""
     for i in range(0, len(input), 2):
