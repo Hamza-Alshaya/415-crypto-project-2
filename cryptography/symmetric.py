@@ -1,16 +1,8 @@
-'''
-#TODO:
-    - Create a function that splits a hex padded string into 8 bytes (64 bits) section/blocks, possibly into an array (internal function)
-    - Create a function that applies the encryption on each section/block from the array above, then returns the encrypted string (as one string, not an array)
-    - Create a function that applies the decryption on each section/block. Takes an encrypted string, splits into sections of 8 bytes, decrypts each and concat
-    By then we would be finally done with symmetric algorithms!
-'''
-
 import sys
 sys.path.append('./')
 
 from cryptography.des_resources import S_BOX, IP, E, P, IP_INVERSE, PC_1, BITS_ROTATION, COMPRESSION_PERMUTATION
-from util.util import dec2bin, bin2dec, bin2hex, hex2bin, hex2char, char2hex
+from util.util import dec2bin, bin2dec, bin2hex, hex2bin, hex2char, char2hex, padder, string_to_hex, hex_to_string
 
 ##########################################
 # constant DES tables were provided by wikipedia's page 'DES supplementary material':   https://en.wikipedia.org/wiki/DES_supplementary_material
@@ -76,6 +68,7 @@ def generate_round_keys(key):
     return round_keys_binary, round_keys
 
 #main encryption function
+#encrypt one single block
 def encrypt(plain_text, key, decrypt=False):
 
 	#generate keys
@@ -135,6 +128,7 @@ def encrypt(plain_text, key, decrypt=False):
 	cipher_text = permute(combine, IP_INVERSE, 64)
 	return bin2hex(cipher_text)
 
+#decrypt one single block
 def decrypt(cipher_text, key):
 	key_binary = hex2bin(key)
 	round_keys_binary, round_keys = generate_round_keys(key_binary)
@@ -159,7 +153,6 @@ decrypted_text = decrypt(cipher_text, key)
 print("Decrypted Text :", decrypted_text)
 '''
 
-
 '''
 #test hex char2hex and hex2char
 character = 'H'
@@ -168,28 +161,52 @@ to_hex = char2hex(character)
 print(f'to hex = {to_hex}')
 print(f'Back to character: {hex2char(to_hex)}')
 '''
-def padder(input_string):
-    #print("length = ", len(input_string))
-    if(len(input_string)%8 !=0):
-        mod_value = len(input_string) % 8
-        #print('mod value = ', mod_value)
-        number_of_pads = 8-mod_value
-        for i in range (number_of_pads):
-            input_string = input_string + " "
-        #print("new length = ", len(input_string))
-    return input_string
 
-def string_block_splitter(input_string):
+#split a string into a list of blocks of size N, size is 8 by default
+#size can be modified depending on context (dealing with hex vs strings)
+def string_block_splitter(input_string, size=8):
 	padded_string = padder(input_string)
 	blocks_list = []
-	for i in range(len(padded_string)//8):
-		one_block = padded_string[:8]
-		padded_string = padded_string[8:]
+	for i in range(len(padded_string)//size):
+		one_block = padded_string[:size]
+		padded_string = padded_string[size:]
 		blocks_list.append(one_block)
 	#print('blocks = ', blocks_list)
 	return blocks_list
 
-def encrypt_des(input_string):
-	blocks_list = string_block_splitter(input_string)
-	for block in blocks_list:
-		pass
+
+#encrypt whole text into a hex string
+def encrypt_des(input_string, key):
+	blocks_string_list = string_block_splitter(input_string)
+	encrypted_blocks = []
+	output_hex = ""
+
+	for string in blocks_string_list:
+		encrypted_block = encrypt(string_to_hex(string), key)
+		#encrypted_blocks.append(encrypted_block)
+		output_hex = output_hex + encrypted_block
+
+	#print('encrypted blocks = ', encrypted_blocks)
+	return output_hex
+
+#decrypt a hex string into a string
+def decrypt_des(input_string, key):
+	hex_blocks_list = string_block_splitter(input_string, size=16)
+	decrypted_blocks = []
+	output_string = ""
+	for string in hex_blocks_list:
+		decrypted_block = hex_to_string(decrypt(string, key))
+		#decrypted_blocks.append(decrypted_block)
+		output_string = output_string+decrypted_block
+	#print('decrypted blocks = ', decrypted_blocks)
+	return output_string
+	
+'''
+#MAIN DRIVER TESTER: can accept any string
+key = "AABB09182736CCDD"
+encrypted_text = encrypt_des('test string that is quite long', key)
+print(encrypted_text)
+
+decrypted_text = decrypt_des(encrypted_text, key)
+print(decrypted_text)
+'''
