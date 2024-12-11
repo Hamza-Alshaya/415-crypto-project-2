@@ -13,7 +13,7 @@ def handle_receive(connection):
             message = connection.recv(2048).decode()
             if not message:
                 break
-            print(f"Bob: {message}")
+            print(f"\nBob: {message}")
             
     #gracefully exit and close socket when main thread closes the connection
     except (ConnectionAbortedError, OSError):
