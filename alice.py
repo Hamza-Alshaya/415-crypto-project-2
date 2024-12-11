@@ -4,17 +4,22 @@ import console.commands
 from console.terminal_emulator import terminal_emulator
 
 import socket
+import pickle
+
 from threading import Thread
 from cryptography.symmetric import encrypt_des, decrypt_des
+
+from cryptography.md5 import md5_hash
 
 
 #handle receiving messages here
 def handle_receive(connection):
     try:
         while True:
-            message = connection.recv(2048).decode()
-            message = decrypt_des(message, cryptography.variables.alice_sym_key)
+            message_object = pickle.loads(connection.recv(2048))
+            message = decrypt_des(message_object['message_content'], cryptography.variables.alice_sym_key)
             if not message:
+                print('ERROR: couldn\'t properly parse received message...' )
                 break
             print(f"\nBob: {message}")
             
@@ -59,9 +64,15 @@ def main():
         
         #check flag before sending to avoid errors
         elif util.config_file.alice_connection_flag:
-            connection.send(encrypt_des(message, cryptography.variables.alice_sym_key).encode())
+            #create the message object:
+            message_object ={
+                'message_content': encrypt_des(message,cryptography.variables.alice_sym_key),
+                'message_hash_encrypted': encrypt_des(md5_hash(message),cryptography.variables.alice_sym_key)
+            }
+            
+            connection.sendall(pickle.dumps(message_object))
         else:
-            print('Client closed the connection.')
+            print('Bob closed the connection.')
             break
 
 

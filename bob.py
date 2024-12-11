@@ -1,3 +1,4 @@
+import pickle
 import socket
 from threading import Thread
 
@@ -7,13 +8,16 @@ from console.terminal_emulator import terminal_emulator
 from cryptography.symmetric import encrypt_des, decrypt_des
 import cryptography.variables
 
+from cryptography.md5 import md5_hash
+
 #handle receiving messages here
 def handle_receive(sock):
     try:
         while True:
-            message = sock.recv(2048).decode()
-            message = decrypt_des(message, cryptography.variables.bob_sym_key)
+            message_object = pickle.loads(sock.recv(2048))
+            message = decrypt_des(message_object['message_content'], cryptography.variables.bob_sym_key)
             if not message:
+                print('ERROR: couldn\'t properly parse received message...' )
                 break
             print(f"\nAlice: {message}")
             
@@ -55,9 +59,15 @@ def main():
         
         #check flag before sending to avoid errors
         elif util.config_file.bob_connection_flag:
-            sock.send(encrypt_des(message, cryptography.variables.bob_sym_key).encode())
+            #create the message object:
+            message_object ={
+                'message_content': encrypt_des(message,cryptography.variables.bob_sym_key),
+                'message_hash_encrypted': encrypt_des(md5_hash(message),cryptography.variables.bob_sym_key)
+            }
+            
+            sock.sendall(pickle.dumps(message_object))
         else:
-            print('Server closed the connection.')
+            print('Alice closed the connection.')
             break
 
 if __name__ == '__main__':
