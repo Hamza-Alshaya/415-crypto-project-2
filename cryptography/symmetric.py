@@ -76,7 +76,7 @@ def generate_round_keys(key):
     return round_keys_binary, round_keys
 
 #main encryption function
-def encrypt(plain_text, round_keys_binary, round_keys):
+def encrypt(plain_text, round_keys_binary):
 	plain_text = hex2bin(plain_text)
 
 	#initial Permutation IP
@@ -122,13 +122,12 @@ def encrypt(plain_text, round_keys_binary, round_keys):
 	cipher_text = permute(combine, IP_INVERSE, 64)
 	return cipher_text
 
-def decrypt(plain_text, round_keys_binary, round_keys):
+def decrypt(cipher_text, round_keys_binary):
     rkb_rev = round_keys_binary[::-1]
-    rk_rev = round_keys[::-1]
-    decrypted_text = bin2hex(encrypt(cipher_text, rkb_rev, rk_rev))
+    decrypted_text = bin2hex(encrypt(cipher_text, rkb_rev))
     return decrypted_text
 
-'''
+#'''
 #TEST PROGRAM
 plain_text = "123456ABCD132536"
 key = "AABB09182736CCDD"
@@ -139,14 +138,14 @@ round_keys_binary, round_keys = generate_round_keys(key_binary)
 
 #encrypt
 print("Original Text:", plain_text)
-cipher_text = bin2hex(encrypt(plain_text, round_keys_binary, round_keys))
+cipher_text = bin2hex(encrypt(plain_text, round_keys_binary))
 print("Cipher Text :", cipher_text)
 
 #decrypt
-decrypted_text = decrypt(plain_text, round_keys_binary, round_keys)
+decrypted_text = decrypt(cipher_text, round_keys_binary)
 
 print("Decrypted Text :", decrypted_text)
-'''
+#'''
 
 
 '''
@@ -158,12 +157,27 @@ print(f'to hex = {to_hex}')
 print(f'Back to character: {hex2char(to_hex)}')
 '''
 def padder(input_string):
-    print("length = ", len(input_string))
+    #print("length = ", len(input_string))
     if(len(input_string)%8 !=0):
         mod_value = len(input_string) % 8
-        print('mod value = ', mod_value)
+        #print('mod value = ', mod_value)
         number_of_pads = 8-mod_value
         for i in range (number_of_pads):
             input_string = input_string + " "
-        print("new length = ", len(input_string))
+        #print("new length = ", len(input_string))
     return input_string
+
+def string_block_splitter(input_string):
+	padded_string = padder(input_string)
+	blocks_list = []
+	for i in range(len(padded_string)//8):
+		one_block = padded_string[:8]
+		padded_string = padded_string[8:]
+		blocks_list.append(one_block)
+	#print('blocks = ', blocks_list)
+	return blocks_list
+
+def encrypt_des(input_string):
+	blocks_list = string_block_splitter(input_string)
+	for block in blocks_list:
+		pass
