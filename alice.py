@@ -5,9 +5,11 @@ from console.terminal_emulator import terminal_emulator
 
 import socket
 import pickle
+import requests
 
 from threading import Thread
 from cryptography.symmetric import encrypt_des, decrypt_des
+from cryptography.asymmetric import generate_rsa_keys
 
 from cryptography.md5 import md5_hash
 
@@ -32,6 +34,25 @@ def handle_receive(connection):
 
 
 def main():
+    #generate key pair
+    cryptography.variables.alice_public_pair, cryptography.variables.alice_private_pair = generate_rsa_keys()
+    #issue a certificate before connecting.
+    csr_obj = {
+        'csr':
+            {
+                'id':"alice",
+                'public_key': str(cryptography.variables.alice_public_pair)
+            }
+    }
+    request_message = requests.post('http://127.0.0.1:42021/certificates', json=csr_obj)
+    request_message_json = request_message.json()
+    if request_message_json['status'] == 'success':
+        print('-=-=-=-=-=-CA HAS SUCCESSFULLY CREATED A CERTIFICATE-=-=-=-=-=-')
+    elif request_message_json['status'] == 'error':
+        print(f'-=-=-=-=-=-ERROR: CA FAILED TO CREATE A CERTIFICATE:-=-=-=-=-=-\n{request_message_json["message"]}')
+        exit(1)
+        
+    
     #server socket creation routine
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(('', util.config_file.alice_port))

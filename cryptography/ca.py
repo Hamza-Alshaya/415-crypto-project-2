@@ -92,4 +92,4 @@ def return_public_key():
     return jsonify({"status": "success", "public_key":public_key}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port = 42021)
