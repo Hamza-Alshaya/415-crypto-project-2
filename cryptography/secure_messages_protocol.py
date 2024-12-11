@@ -9,13 +9,13 @@ from Crypto.Util.number import getPrime
 
 import socket
 import pickle
+import requests     
 
 def secure_messages_protocol(connection_socket: socket.socket, name):
 #########################
     #alice's logic
     if (name == 'alice'):
         from cryptography.variables import alice_dh_secret, alice_dh_public, alice_public_pair, alice_private_pair
-        alice_public_pair, alice_private_pair = generate_rsa_keys()
 
         print(f'sent public key: {alice_public_pair}')
         connection_socket.sendall(pickle.dumps(alice_public_pair))
@@ -47,7 +47,6 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         print(f'received public_key: {alice_pk}')
 
         from cryptography.variables import bob_dh_secret, bob_dh_public, bob_public_pair, bob_private_pair
-        bob_public_pair, bob_private_pair = generate_rsa_keys()
 
         print(f'sent public key: {bob_public_pair}')
         connection_socket.sendall(pickle.dumps(bob_public_pair))

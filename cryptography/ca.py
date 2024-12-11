@@ -41,6 +41,12 @@ def sign_certificate_request(csr):
     issued_certificates[csr['id']] = {"id": id, "public_key": csr['public_key'], "signature": signature}
     
     print(f'\n==================\nCERTIFICATE GENERATED:\n-=-=-=-=-=\n{issued_certificates}\n-=-=-=-=-=\n==================')
+    database = open('database.json', 'w')
+    
+    #output the database to a file
+    with open("database.json", "w") as outputfile: 
+        json.dump(issued_certificates, outputfile, indent=4)
+    
     return f"Signed Certificate for CSR: {csr}"
 
 

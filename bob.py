@@ -1,5 +1,6 @@
 import pickle
 import socket
+import requests
 from threading import Thread
 
 import util.config_file
@@ -7,6 +8,7 @@ import console.commands
 from console.terminal_emulator import terminal_emulator
 from cryptography.symmetric import encrypt_des, decrypt_des
 import cryptography.variables
+from cryptography.asymmetric import generate_rsa_keys
 
 from cryptography.md5 import md5_hash
 
@@ -31,6 +33,24 @@ def handle_receive(sock):
 
 
 def main():
+    #generate key pair
+    cryptography.variables.bob_public_pair, cryptography.variables.bob_private_pair = generate_rsa_keys()
+    #issue a certificate before connecting.
+    csr_obj = {
+        'csr':
+            {
+                'id':"bob",
+                'public_key': str(cryptography.variables.bob_public_pair)
+            }
+    }
+    request_message = requests.post('http://127.0.0.1:42021/certificates', json=csr_obj)
+    request_message_json = request_message.json()
+    if request_message_json['status'] == 'success':
+        print('-=-=-=-=-=-CA HAS SUCCESSFULLY CREATED A CERTIFICATE-=-=-=-=-=-')
+    elif request_message_json['status'] == 'error':
+        print(f'-=-=-=-=-=-ERROR: CA FAILED TO CREATE A CERTIFICATE:-=-=-=-=-=-\n{request_message_json["message"]}')
+        exit(1)
+        
     #client socket connection routine
     sock = socket.socket()
     sock.connect((util.config_file.alice_ip, util.config_file.alice_port))
