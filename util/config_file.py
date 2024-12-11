@@ -12,3 +12,11 @@ bob_connection_flag = False
 # Change the size of the RSA key here
 rsa_key_size = 2048
 #############################################
+###Diffie-Hellman configuration
+# Set the values of p and g to a specified large prime number
+# g will be risen to some power, p will be used as a right modulo operand
+# larger p > higher range of selection
+# BOTH VALUES MOST BE PRIME
+dh_g = 2687
+dh_p = 839903
+#############################################
