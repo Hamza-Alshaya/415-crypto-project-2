@@ -76,7 +76,20 @@ def generate_round_keys(key):
     return round_keys_binary, round_keys
 
 #main encryption function
-def encrypt(plain_text, round_keys_binary):
+def encrypt(plain_text, key, decrypt=False):
+
+	#generate keys
+	round_keys_binary = 0
+	
+	#change behavior in case the decryption methods called this function
+	if (decrypt):
+		#decrypt sends the reversed round key binary instead of the actual key, so interpret that value as rkb instead.
+		round_keys_binary = key
+	else:
+		key_binary = hex2bin(key)
+		round_keys_binary, round_keys = generate_round_keys(key_binary)
+	
+
 	plain_text = hex2bin(plain_text)
 
 	#initial Permutation IP
@@ -120,32 +133,31 @@ def encrypt(plain_text, round_keys_binary):
 
 	#final permutation: final rearranging of bits to get cipher text
 	cipher_text = permute(combine, IP_INVERSE, 64)
-	return cipher_text
+	return bin2hex(cipher_text)
 
-def decrypt(cipher_text, round_keys_binary):
-    rkb_rev = round_keys_binary[::-1]
-    decrypted_text = bin2hex(encrypt(cipher_text, rkb_rev))
-    return decrypted_text
+def decrypt(cipher_text, key):
+	key_binary = hex2bin(key)
+	round_keys_binary, round_keys = generate_round_keys(key_binary)
 
-#'''
+	rkb_rev = round_keys_binary[::-1]
+	decrypted_text = encrypt(cipher_text, rkb_rev, decrypt=True)
+	return decrypted_text
+
+'''
 #TEST PROGRAM
 plain_text = "123456ABCD132536"
 key = "AABB09182736CCDD"
-
-#generate keys
-key_binary = hex2bin(key)
-round_keys_binary, round_keys = generate_round_keys(key_binary)
+print("Original Text:", plain_text)
 
 #encrypt
-print("Original Text:", plain_text)
-cipher_text = bin2hex(encrypt(plain_text, round_keys_binary))
+cipher_text = encrypt(plain_text, key)
 print("Cipher Text :", cipher_text)
 
 #decrypt
-decrypted_text = decrypt(cipher_text, round_keys_binary)
+decrypted_text = decrypt(cipher_text, key)
 
 print("Decrypted Text :", decrypted_text)
-#'''
+'''
 
 
 '''
