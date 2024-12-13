@@ -28,9 +28,10 @@ def handle_receive(sock):
                 print('ERROR: couldn\'t properly parse encrypted hashed message...' )
             
             if (message_hash == message_decrypted_hash):
-                print('Hash match.')
+                #print('\nHash match.')
+                pass
             else:
-                print("Not a hash match")
+                print("\nNot a hash match")
                 print(f'encrypted hash:{rsa_decrypt(message_object["message_hash_encrypted"],cryptography.variables.alice_public_pair)}')
                 print(f'normal hash: {message_hash}')
                 print(f'md5(message): {md5_hash(message)}')

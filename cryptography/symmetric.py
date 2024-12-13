@@ -13,7 +13,7 @@ from cryptography.md5 import md5_hash
 #generate a 64 bit key given a seed
 def generate_64b_key(input_string):
     #re-stringify the string in case the passed value wasn't a string
-	input_string_stringified = str(input_string_stringified)
+	input_string_stringified = str(input_string)
 	hashed_input = md5_hash(input_string_stringified)
 	return hashed_input[:16]
 
