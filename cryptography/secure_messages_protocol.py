@@ -54,21 +54,30 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
     if (name == 'alice'):
         from cryptography.variables import alice_dh_secret, alice_dh_public, alice_public_pair, alice_private_pair
 
+        #sending public key
         print(f'sent public key: {alice_public_pair}')
         connection_socket.sendall(pickle.dumps(alice_public_pair))
 
+        #Receiving public key
         bob_pk = pickle.loads(connection_socket.recv(2048))
         print(f'received public_key: {bob_pk}')
+        
+        #authenticate the key with the CA
         authenticate_with_CA('bob', bob_pk)
 
+        #Selecting secret key a for Diffie-Hellman, then calculating the public value A
         alice_dh_secret = getPrime(12)
         alice_dh_public = generator(alice_dh_secret)
 
+        #send the public value A
         connection_socket.sendall(pickle.dumps(alice_dh_public))
+        
+        #Receive the public value B from Bob and generate the agreed key
         bob_pdh = pickle.loads(connection_socket.recv(2048))
         alice_sc = agreement(bob_pdh, alice_dh_secret)
         print('shared secret = ', alice_sc)
         
+        #generate a symmetric key from the hash of the shared key
         alice_sym_key = generate_64b_key(str(alice_sc))
         print('generated key = ', alice_sym_key)
 
@@ -81,23 +90,31 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
 #########################
     #bob's logic
     if (name == 'bob'):
+        
+        #receiving public key from Alice
         alice_pk = pickle.loads(connection_socket.recv(2048))
         print(f'received public_key: {alice_pk}')
+        
+        #authenticate the key with the CA
         authenticate_with_CA('alice', alice_pk)
         
         from cryptography.variables import bob_dh_secret, bob_dh_public, bob_public_pair, bob_private_pair
 
+        #send public key
         print(f'sent public key: {bob_public_pair}')
         connection_socket.sendall(pickle.dumps(bob_public_pair))
 
+        #Selecting secret key b for Diffie-Hellman, then calculating the public value B
         bob_dh_secret = getPrime(12)
         bob_dh_public = generator(bob_dh_secret)
 
+        #receive the public value A from Alice, calculate the shared secret, then send Bob's public value B
         alice_pdh = pickle.loads(connection_socket.recv(2048))
         bob_sc = agreement(alice_pdh, bob_dh_secret)
         connection_socket.sendall(pickle.dumps(bob_dh_public))
         print('shared secret = ', bob_sc)
 
+        #generate a symmetric key from the hash of the shared key
         bob_sym_key = generate_64b_key(str(bob_sc))
         print('generated key = ', bob_sym_key)
 
