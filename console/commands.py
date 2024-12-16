@@ -6,6 +6,7 @@ EXIT_COMMAND = 1
 HELP_COMMAND = 2
 TOGGLE_DECRYPTION_COMMAND = 3
 TOGGLE_ENCRYPTION_COMMAND = 4
+SHOW_INFO_COMMAND = 5
 
 import sys
 sys.path.append('./')
@@ -20,6 +21,8 @@ def define_command(input):
         return TOGGLE_ENCRYPTION_COMMAND
     elif (input == "/toggle decryption" or input == "/t d"):
         return TOGGLE_DECRYPTION_COMMAND
+    elif (input == "/info" or input == "/i"):
+        return SHOW_INFO_COMMAND
     else:
         return UNKNOWN_COMMAND
 

@@ -22,6 +22,7 @@ def terminal_emulator(name='myName'):
         print('/h, /help, /?:\t\tdisplay help menu.')
         print('/toggle encryption, /t e:\t\t Enable or disable encryption')
         print('/toggle decryption, /t d:\t\t Enable or disable decryption')
+        print('/info, /i:\t\t\t Show current config variables')
         
         print('\n')
         return f'/'
@@ -51,7 +52,21 @@ def terminal_emulator(name='myName'):
             console.bob_config.enable_decryption = not(console.bob_config.enable_decryption)
             print(f'Decrypting incoming messages has been set to {console.bob_config.enable_decryption}.')
             return f'/'
+    
+    elif macro == console.commands.SHOW_INFO_COMMAND:
+        if (name == "Alice"):
+            import console.alice_config
+            print(f"Encrypting outgoing messages: {console.alice_config.enable_encryption}")
+            print(f"Decrypting incoming messages: {console.alice_config.enable_decryption}")
+            return f'/'
         
+        elif (name =='Bob'):
+            console.bob_config
+            print(f"Encrypting outgoing messages: {console.bob_config.enable_encryption}")
+            print(f"Decrypting incoming messages: {console.bob_config.enable_decryption}")
+            return f'/'
+        
+
     elif macro == console.commands.PLAIN_TEXT:
         return input_string
     elif macro == console.commands.EMPTY_STRING:

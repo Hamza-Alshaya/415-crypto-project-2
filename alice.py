@@ -16,16 +16,27 @@ from cryptography.asymmetric import generate_rsa_keys, rsa_encrypt, rsa_decrypt
 
 from cryptography.md5 import md5_hash
 
+import console.alice_config
+
 
 #handle receiving messages here
 def handle_receive(connection):
     try:
         while True:
             message_object = pickle.loads(connection.recv(2048))
-            message = decrypt_des(message_object['message_content'], cryptography.variables.alice_sym_key)
+            
+            if (console.alice_config.enable_decryption):
+                message = decrypt_des(message_object['message_content'], cryptography.variables.alice_sym_key)
+            else:
+                message = message_object['message_content']
+            
+            if (message_object['encrypted'] == False):
+                message = message_object['message_content']
+                print(f"\n{colorize('WARNING:', tf_presets.danger)} Received message is not encrypted!")
+
             if not message:
                 print(colorize('ERROR: couldn\'t properly parse received message...', tf_presets.danger))
-                break
+            
             
             message_hash = md5_hash(message)
             message_decrypted_hash = rsa_decrypt(message_object['message_hash_encrypted'],cryptography.variables.bob_public_pair)
@@ -37,9 +48,9 @@ def handle_receive(connection):
                 pass
             else:
                 print(colorize("\nNot a hash match", tf_presets.danger))
-                print(f'encrypted hash:{rsa_decrypt(message_object["message_hash_encrypted"],cryptography.variables.alice_public_pair)}')
-                print(f'normal hash: {message_hash}')
-                print(f'md5(message): {md5_hash(message)}')
+                print(f'encrypted hash:\t{rsa_decrypt(message_object["message_hash_encrypted"],cryptography.variables.bob_public_pair)}')
+                print(f'normal hash:\t{message_hash}')
+                print(f'md5(message):\t{md5_hash(message)}')
                 print(f'message: \"{message}\"')
                 exit(0)
             
@@ -109,9 +120,16 @@ def main():
             message = message.rstrip()
             if (message == ""):
                 continue
+            
+            message_hash = md5_hash(message)
+            if (console.alice_config.enable_encryption):
+                message = encrypt_des(message,cryptography.variables.alice_sym_key)
+            
+            #create the message object:
             message_object ={
-                'message_content': encrypt_des(message,cryptography.variables.alice_sym_key),
-                'message_hash_encrypted': rsa_encrypt(md5_hash(message),cryptography.variables.alice_private_pair)
+                'message_content': message,
+                'message_hash_encrypted': rsa_encrypt(message_hash,cryptography.variables.alice_private_pair),
+                'encrypted': console.alice_config.enable_encryption
             }
             
             connection.sendall(pickle.dumps(message_object))
