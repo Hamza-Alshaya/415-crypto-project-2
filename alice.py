@@ -3,6 +3,9 @@ import cryptography.variables
 import console.commands
 from console.terminal_emulator import terminal_emulator
 
+from console.format_util import tf_presets
+colorize = tf_presets.colorize
+
 import socket
 import pickle
 import requests
@@ -21,19 +24,19 @@ def handle_receive(connection):
             message_object = pickle.loads(connection.recv(2048))
             message = decrypt_des(message_object['message_content'], cryptography.variables.alice_sym_key)
             if not message:
-                print('ERROR: couldn\'t properly parse received message...' )
+                print(colorize('ERROR: couldn\'t properly parse received message...', tf_presets.danger))
                 break
             
             message_hash = md5_hash(message)
             message_decrypted_hash = rsa_decrypt(message_object['message_hash_encrypted'],cryptography.variables.bob_public_pair)
             if not message_decrypted_hash:
-                print('ERROR: couldn\'t properly parse encrypted hashed message...' )
+                print(colorize('ERROR: couldn\'t properly parse encrypted hashed message...', tf_presets.danger))
             
             if (message_hash == message_decrypted_hash):
                 #print('\nHash match.')
                 pass
             else:
-                print("\nNot a hash match")
+                print(colorize("\nNot a hash match", tf_presets.danger))
                 print(f'encrypted hash:{rsa_decrypt(message_object["message_hash_encrypted"],cryptography.variables.alice_public_pair)}')
                 print(f'normal hash: {message_hash}')
                 print(f'md5(message): {md5_hash(message)}')
@@ -64,9 +67,9 @@ def main():
     request_message = requests.post('http://127.0.0.1:42021/certificates', json=csr_obj)
     request_message_json = request_message.json()
     if request_message_json['status'] == 'success':
-        print('-=-=-=-=-=-CA HAS SUCCESSFULLY CREATED A CERTIFICATE-=-=-=-=-=-')
+        print(colorize('-=-=-=-=-=-CA HAS SUCCESSFULLY CREATED A CERTIFICATE-=-=-=-=-=-', tf_presets.green))
     elif request_message_json['status'] == 'error':
-        print(f'-=-=-=-=-=-ERROR: CA FAILED TO CREATE A CERTIFICATE:-=-=-=-=-=-\n{request_message_json["message"]}')
+        print(colorize(f'-=-=-=-=-=-ERROR: CA FAILED TO CREATE A CERTIFICATE:-=-=-=-=-=-\n{request_message_json["message"]}', tf_presets.danger))
         exit(1)
         
     
@@ -104,6 +107,8 @@ def main():
         elif util.config_file.alice_connection_flag:
             #create the message object:
             message = message.rstrip()
+            if (message == ""):
+                continue
             message_object ={
                 'message_content': encrypt_des(message,cryptography.variables.alice_sym_key),
                 'message_hash_encrypted': rsa_encrypt(md5_hash(message),cryptography.variables.alice_private_pair)

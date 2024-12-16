@@ -4,6 +4,7 @@ from cryptography.asymmetric import generate_rsa_keys, rsa_encrypt, rsa_decrypt
 from cryptography.diffie_hellman import generator, agreement
 from cryptography.symmetric import generate_64b_key
 from cryptography.md5 import md5_hash
+
 from console.format_util import tf_presets
 colorize = tf_presets.colorize
 
@@ -34,9 +35,9 @@ def authenticate_with_CA(id, public_key):
         hashed_public_key = md5_hash(str(public_key))
         
         if (decrypted_hash == hashed_public_key):
-            print(colorize('-=-=-=-=-=PUBLIC KEY\'s HASH MATCHES CA\'s ENCRYPTED HASH!-=-=-=-=-=', tf_presets.green))
+            print(colorize('-=-=-=-=-=PUBLIC KEY\'S HASH MATCHES CA\'s ENCRYPTED HASH!-=-=-=-=-=', tf_presets.green))
         else:
-            print(colorize('-=-=-=-=-=PUBLIC KEY\'s HASH HAS FAILED TO MATCH WITH CA\'s ENCRYPTED HASH, ABORTING...-=-=-=-=-=', tf_presets.danger))
+            print(colorize('-=-=-=-=-=PUBLIC KEY\'S HASH HAS FAILED TO MATCH WITH CA\'s ENCRYPTED HASH, ABORTING...-=-=-=-=-=', tf_presets.danger))
             exit(0)
         
         #print('DECRYPTED SIGNATURE =\t', decrypted_hash)
