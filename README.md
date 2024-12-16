@@ -16,7 +16,8 @@
 ### Libraries and dependencies:
 - flask         **(for running the CA http server)**
 - pycryptodome  **(used for generating large prime numbers and for performance evaluation)**
-- hashlib (included with python)    **(used for evaluating hash performance)**       
+- hashlib (included with python)    **(used for evaluating hash performance)**
+- requests      **For parcing HTTP requests**       
 
 ### Tested environment(s)/package(s) version(s)
 - Windows 11 + MSYS2, running MINGW64_NT-10.0-22631: 3.5.4-0bc1222b.x86_64 2024-09-04 18:28 UTC x86_64 Msys
