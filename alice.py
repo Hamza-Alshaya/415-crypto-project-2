@@ -124,7 +124,12 @@ def main():
             if (message == ""):
                 continue
             
-            message_hash = md5_hash(message)
+            if (console.alice_config.emulate_false_hash):
+                from random import randint
+                message_hash = md5_hash(str(randint(1, 10000)))
+            else:
+                message_hash = md5_hash(message)
+                
             if (console.alice_config.enable_encryption):
                 message = encrypt_des(message,cryptography.variables.alice_sym_key)
             

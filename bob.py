@@ -49,7 +49,6 @@ def handle_receive(sock):
                 print(f'normal hash:\t"{message_hash}"')
                 print(f'md5(message):\t"{md5_hash(message)}"')
                 print(f'message: \"{message}\"')
-                exit(0)
                 
                 
             if (message_object['encrypted'] == False):
@@ -121,7 +120,12 @@ def main():
             if (message == ""):
                 continue
             
-            message_hash = md5_hash(message)
+            if (console.bob_config.emulate_false_hash):
+                from random import randint
+                message_hash = md5_hash(str(randint(1, 10000)))
+            else:
+                message_hash = md5_hash(message)
+                
             if (console.bob_config.enable_encryption):
                 message = encrypt_des(message,cryptography.variables.bob_sym_key)
             

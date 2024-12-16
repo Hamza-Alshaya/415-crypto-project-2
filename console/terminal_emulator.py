@@ -19,10 +19,11 @@ def terminal_emulator(name='myName'):
     
     elif macro == console.commands.HELP_COMMAND:
         print('/c, /close, /q, /quit:\t\tQuit the program.')
-        print('/h, /help, /?:\t\tdisplay help menu.')
-        print('/toggle encryption, /t e:\t\t Enable or disable encryption')
-        print('/toggle decryption, /t d:\t\t Enable or disable decryption')
-        print('/info, /i:\t\t\t Show current config variables')
+        print('/h, /help, /?:\t\t\tdisplay help menu.')
+        print('/toggle encryption, /t e:\tEnable or disable encryption')
+        print('/toggle decryption, /t d:\tEnable or disable decryption')
+        print('/info, /i:\t\t\tShow current config variables')
+        print('/hash tamper:\t\t\tTamper with the hash sent to the other end')
         
         print('\n')
         return f'/'
@@ -65,7 +66,18 @@ def terminal_emulator(name='myName'):
             print(f"Encrypting outgoing messages: {console.bob_config.enable_encryption}")
             print(f"Decrypting incoming messages: {console.bob_config.enable_decryption}")
             return f'/'
-        
+    elif macro == console.commands.TAMPER_HASH_COMMAND:
+        if (name == "Alice"):
+            import console.alice_config
+            console.alice_config.emulate_false_hash = not (console.alice_config.emulate_false_hash)
+            print(f'Tampering with the sent hash has been set to {console.alice_config.emulate_false_hash}')
+            
+            return f'/'
+        elif (name =='Bob'):
+            import console.bob_config
+            console.bob_config.emulate_false_hash = not (console.bob_config.emulate_false_hash)
+            print(f'Tampering with the sent hash has been set to {console.bob_config.emulate_false_hash}')
+            return f'/'
 
     elif macro == console.commands.PLAIN_TEXT:
         return input_string

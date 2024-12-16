@@ -7,6 +7,7 @@ HELP_COMMAND = 2
 TOGGLE_DECRYPTION_COMMAND = 3
 TOGGLE_ENCRYPTION_COMMAND = 4
 SHOW_INFO_COMMAND = 5
+TAMPER_HASH_COMMAND = 6
 
 import sys
 sys.path.append('./')
@@ -23,6 +24,8 @@ def define_command(input):
         return TOGGLE_DECRYPTION_COMMAND
     elif (input == "/info" or input == "/i"):
         return SHOW_INFO_COMMAND
+    elif (input == "/hash tamper"):
+        return TAMPER_HASH_COMMAND
     else:
         return UNKNOWN_COMMAND
 
