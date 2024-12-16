@@ -55,6 +55,8 @@ class tf_presets:
     red = f'{tf.NORMAL}{tf.RED}{tf.NOBG}'
     purple = f'{tf.NORMAL}{tf.MAGENTA}{tf.NOBG}'
     blue = f'{tf.NORMAL}{tf.CYAN}{tf.NOBG}'
+    red = f'{tf.NORMAL}{tf.RED}{tf.NOBG}'
+    
             
     def colorize(string, preset):
         return f'{preset}{string}{tf.RESET}'

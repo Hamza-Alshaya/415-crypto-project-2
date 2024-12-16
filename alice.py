@@ -25,14 +25,11 @@ def handle_receive(connection):
         while True:
             message_object = pickle.loads(connection.recv(2048))
             
-            if (console.alice_config.enable_decryption):
-                message = decrypt_des(message_object['message_content'], cryptography.variables.alice_sym_key)
-            else:
-                message = message_object['message_content']
-            
             if (message_object['encrypted'] == False):
                 message = message_object['message_content']
                 print(f"\n{colorize('WARNING:', tf_presets.danger)} Received message is not encrypted!")
+            else:
+                message = decrypt_des(message_object['message_content'], cryptography.variables.alice_sym_key)
 
             if not message:
                 print(colorize('ERROR: couldn\'t properly parse received message...', tf_presets.danger))
@@ -54,7 +51,13 @@ def handle_receive(connection):
                 print(f'message: \"{message}\"')
                 exit(0)
             
-            print(f"\nBob: {message}")
+            if (message_object['encrypted'] == False):
+                print(f"\n{colorize('Bob:', tf_presets.red)} {message}")
+            else:
+                if (console.alice_config.enable_decryption):
+                    print(f"\n{colorize('Bob:', tf_presets.blue)} {message}")
+                else:
+                    print(f"\n{colorize('Bob:', tf_presets.blue)} {message_object['message_content']}")
             
     #gracefully exit and close socket when main thread closes the connection
     except (ConnectionAbortedError, OSError):

@@ -24,14 +24,11 @@ def handle_receive(sock):
         while True:
             message_object = pickle.loads(sock.recv(2048))
             
-            if (console.bob_config.enable_decryption):
-                message = decrypt_des(message_object['message_content'], cryptography.variables.bob_sym_key)
-            else:
-                message = message_object['message_content']
-            
             if (message_object['encrypted'] == False):
                 message = message_object['message_content']
                 print(f"\n{colorize('WARNING:', tf_presets.danger)} Received message is not encrypted!")
+            else:
+                message = decrypt_des(message_object['message_content'], cryptography.variables.bob_sym_key)
 
             if not message:
                 print(colorize('ERROR: couldn\'t properly parse received message...', tf_presets.danger))
@@ -54,8 +51,14 @@ def handle_receive(sock):
                 exit(0)
                 
                 
-                
-            print(f"\nAlice: {message}")
+            if (message_object['encrypted'] == False):
+                print(f"\n{colorize('Alice:', tf_presets.red)} {message}")
+            else:
+                if (console.bob_config.enable_decryption):
+                    print(f"\n{colorize('Alice:', tf_presets.blue)} {message}")
+                else:
+                    print(f"\n{colorize('Alice:', tf_presets.blue)} {message_object['message_content']}")
+                    
             
     #gracefully exit and close socket when main thread closes the connection
     except (ConnectionAbortedError, OSError):
