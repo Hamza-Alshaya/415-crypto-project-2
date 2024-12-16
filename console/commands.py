@@ -4,6 +4,13 @@ UNKNOWN_COMMAND = -1
 PLAIN_TEXT = 0
 EXIT_COMMAND = 1
 HELP_COMMAND = 2
+TOGGLE_DECRYPTION_COMMAND = 3
+TOGGLE_ENCRYPTION_COMMAND = 4
+SHOW_INFO_COMMAND = 5
+TAMPER_HASH_COMMAND = 6
+
+import sys
+sys.path.append('./')
 
 #return the macro of the adequate command
 def define_command(input):
@@ -11,7 +18,14 @@ def define_command(input):
         return EXIT_COMMAND
     elif (input == '/h' or input == '/help' or input == '/?'):
         return HELP_COMMAND
-    
+    elif (input == "/toggle encryption" or input == "/t e"):
+        return TOGGLE_ENCRYPTION_COMMAND
+    elif (input == "/toggle decryption" or input == "/t d"):
+        return TOGGLE_DECRYPTION_COMMAND
+    elif (input == "/info" or input == "/i"):
+        return SHOW_INFO_COMMAND
+    elif (input == "/hash tamper"):
+        return TAMPER_HASH_COMMAND
     else:
         return UNKNOWN_COMMAND
 

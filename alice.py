@@ -3,6 +3,9 @@ import cryptography.variables
 import console.commands
 from console.terminal_emulator import terminal_emulator
 
+from console.format_util import tf_presets
+colorize = tf_presets.colorize
+
 import socket
 import pickle
 import requests
@@ -13,34 +16,48 @@ from cryptography.asymmetric import generate_rsa_keys, rsa_encrypt, rsa_decrypt
 
 from cryptography.md5 import md5_hash
 
+import console.alice_config
+
 
 #handle receiving messages here
 def handle_receive(connection):
     try:
         while True:
             message_object = pickle.loads(connection.recv(2048))
-            message = decrypt_des(message_object['message_content'], cryptography.variables.alice_sym_key)
+            
+            if (message_object['encrypted'] == False):
+                message = message_object['message_content']
+                print(f"\n{colorize('WARNING:', tf_presets.danger)} Received message is not encrypted!")
+            else:
+                message = decrypt_des(message_object['message_content'], cryptography.variables.alice_sym_key)
+
             if not message:
-                print('ERROR: couldn\'t properly parse received message...' )
-                break
+                print(colorize('ERROR: couldn\'t properly parse received message...', tf_presets.danger))
+            
             
             message_hash = md5_hash(message)
             message_decrypted_hash = rsa_decrypt(message_object['message_hash_encrypted'],cryptography.variables.bob_public_pair)
             if not message_decrypted_hash:
-                print('ERROR: couldn\'t properly parse encrypted hashed message...' )
+                print(colorize('ERROR: couldn\'t properly parse encrypted hashed message...', tf_presets.danger))
             
+            hash_match_flag = False
             if (message_hash == message_decrypted_hash):
-                #print('\nHash match.')
-                pass
+                hash_match_flag = True
+
             else:
-                print("\nNot a hash match")
-                print(f'encrypted hash:{rsa_decrypt(message_object["message_hash_encrypted"],cryptography.variables.alice_public_pair)}')
-                print(f'normal hash: {message_hash}')
-                print(f'md5(message): {md5_hash(message)}')
+                print(colorize("\nNot a hash match", tf_presets.danger))
+                print(f'encrypted hash:\t{rsa_decrypt(message_object["message_hash_encrypted"],cryptography.variables.bob_public_pair)}')
+                print(f'normal hash:\t{message_hash}')
+                print(f'md5(message):\t{md5_hash(message)}')
                 print(f'message: \"{message}\"')
-                exit(0)
             
-            print(f"\nBob: {message}")
+            if (message_object['encrypted'] == False):
+                print(f"\n{colorize('Bob:', tf_presets.red)} {message}")
+            else:
+                if (console.alice_config.enable_decryption):
+                    print(f"\n{colorize('Bob:', tf_presets.blue)} {message}")
+                else:
+                    print(f"\n{colorize('Bob:', tf_presets.blue)} {message_object['message_content']}")
             
     #gracefully exit and close socket when main thread closes the connection
     except (ConnectionAbortedError, OSError):
@@ -64,9 +81,9 @@ def main():
     request_message = requests.post('http://127.0.0.1:42021/certificates', json=csr_obj)
     request_message_json = request_message.json()
     if request_message_json['status'] == 'success':
-        print('-=-=-=-=-=-CA HAS SUCCESSFULLY CREATED A CERTIFICATE-=-=-=-=-=-')
+        print(colorize('-=-=-=-=-=-CA HAS SUCCESSFULLY CREATED A CERTIFICATE-=-=-=-=-=-', tf_presets.green))
     elif request_message_json['status'] == 'error':
-        print(f'-=-=-=-=-=-ERROR: CA FAILED TO CREATE A CERTIFICATE:-=-=-=-=-=-\n{request_message_json["message"]}')
+        print(colorize(f'-=-=-=-=-=-ERROR: CA FAILED TO CREATE A CERTIFICATE:-=-=-=-=-=-\n{request_message_json["message"]}', tf_presets.danger))
         exit(1)
         
     
@@ -104,9 +121,23 @@ def main():
         elif util.config_file.alice_connection_flag:
             #create the message object:
             message = message.rstrip()
+            if (message == ""):
+                continue
+            
+            if (console.alice_config.emulate_false_hash):
+                from random import randint
+                message_hash = md5_hash(str(randint(1, 10000)))
+            else:
+                message_hash = md5_hash(message)
+                
+            if (console.alice_config.enable_encryption):
+                message = encrypt_des(message,cryptography.variables.alice_sym_key)
+            
+            #create the message object:
             message_object ={
-                'message_content': encrypt_des(message,cryptography.variables.alice_sym_key),
-                'message_hash_encrypted': rsa_encrypt(md5_hash(message),cryptography.variables.alice_private_pair)
+                'message_content': message,
+                'message_hash_encrypted': rsa_encrypt(message_hash,cryptography.variables.alice_private_pair),
+                'encrypted': console.alice_config.enable_encryption
             }
             
             connection.sendall(pickle.dumps(message_object))

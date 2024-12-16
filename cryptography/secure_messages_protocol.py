@@ -5,6 +5,9 @@ from cryptography.diffie_hellman import generator, agreement
 from cryptography.symmetric import generate_64b_key
 from cryptography.md5 import md5_hash
 
+from console.format_util import tf_presets
+colorize = tf_presets.colorize
+
 from Crypto.Util.number import getPrime
 
 import socket
@@ -17,11 +20,11 @@ def authenticate_with_CA(id, public_key):
     request_response_key_json = request_response_key.json()
     if request_response_key_json['status'] == 'success':
         ca_pk = tuple(request_response_key_json['public_key'])
-        print('\n\n-=-=-=-=-=RECEIVED CA\'S PUBLIC KEY-=-=-=-=-=')
+        print(colorize("-=-=-=-=-=RECEIVED CA\'S PUBLIC KEY-=-=-=-=-=", tf_presets.green))
         
         #print('CA PUBLIC KEY = ', ca_pk)
     else:
-        print('FAILED TO RETRIEVE CERTIFICATE\'S PUBLIC KEY, ABORTING.')
+        print(colorize('FAILED TO RETRIEVE CERTIFICATE\'S PUBLIC KEY, ABORTING.',tf_presets.danger))
         exit(1)
     
     
@@ -32,17 +35,17 @@ def authenticate_with_CA(id, public_key):
         hashed_public_key = md5_hash(str(public_key))
         
         if (decrypted_hash == hashed_public_key):
-            print('-=-=-=-=-=PUBLIC KEY\'s HASH HAS MATCHED WITH CA\'s ENCRYPTED HASH!-=-=-=-=-=')
+            print(colorize('-=-=-=-=-=PUBLIC KEY\'S HASH MATCHES CA\'s ENCRYPTED HASH!-=-=-=-=-=', tf_presets.green))
         else:
-            print('-=-=-=-=-=PUBLIC KEY\'s HASH HAS FAILED TO MATCH WITH CA\'s ENCRYPTED HASH, ABORTING...-=-=-=-=-=')
+            print(colorize('-=-=-=-=-=PUBLIC KEY\'S HASH HAS FAILED TO MATCH WITH CA\'s ENCRYPTED HASH, ABORTING...-=-=-=-=-=', tf_presets.danger))
             exit(0)
         
-        print('DECRYPTED SIGNATURE =\t', decrypted_hash)
-        print(f"{id.upper()}\'S HASHED KEY:\t {hashed_public_key}\n\n\n")
+        #print('DECRYPTED SIGNATURE =\t', decrypted_hash)
+        #print(f"{id.upper()}\'S HASHED KEY:\t {hashed_public_key}\n\n\n")
         
         pass
     else:
-        print('FAILED TO RETRIEVE CERTIFICATE FROM CA, ABORTING.')
+        print(colorize('FAILED TO RETRIEVE CERTIFICATE FROM CA, ABORTING.', tf_presets.danger))
         exit(1)
     
     #print(request_response_cert_json)
@@ -55,12 +58,12 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         from cryptography.variables import alice_dh_secret, alice_dh_public, alice_public_pair, alice_private_pair
 
         #sending public key
-        print(f'sent public key: {alice_public_pair}')
+        print(colorize('Public key sent to Bob.',tf_presets.green))
         connection_socket.sendall(pickle.dumps(alice_public_pair))
 
         #Receiving public key
         bob_pk = pickle.loads(connection_socket.recv(2048))
-        print(f'received public_key: {bob_pk}')
+        print(colorize('Reveived Bob\'s public key.',tf_presets.green))
         
         #authenticate the key with the CA
         authenticate_with_CA('bob', bob_pk)
@@ -75,11 +78,11 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         #Receive the public value B from Bob and generate the agreed key
         bob_pdh = pickle.loads(connection_socket.recv(2048))
         alice_sc = agreement(bob_pdh, alice_dh_secret)
-        print('shared secret = ', alice_sc)
+        print(colorize(f'shared secret = {alice_sc}', tf_presets.blue))
         
         #generate a symmetric key from the hash of the shared key
         alice_sym_key = generate_64b_key(str(alice_sc))
-        print('generated key = ', alice_sym_key)
+        print(colorize(f'generated key = {alice_sym_key}', tf_presets.blue))
 
         return alice_sym_key, bob_pk
         
@@ -93,7 +96,8 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         
         #receiving public key from Alice
         alice_pk = pickle.loads(connection_socket.recv(2048))
-        print(f'received public_key: {alice_pk}')
+        print(colorize('Reveived Alice\'s public key.',tf_presets.green))
+
         
         #authenticate the key with the CA
         authenticate_with_CA('alice', alice_pk)
@@ -101,7 +105,7 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         from cryptography.variables import bob_dh_secret, bob_dh_public, bob_public_pair, bob_private_pair
 
         #send public key
-        print(f'sent public key: {bob_public_pair}')
+        print(colorize('Public key sent to Alice.',tf_presets.green))
         connection_socket.sendall(pickle.dumps(bob_public_pair))
 
         #Selecting secret key b for Diffie-Hellman, then calculating the public value B
@@ -112,11 +116,11 @@ def secure_messages_protocol(connection_socket: socket.socket, name):
         alice_pdh = pickle.loads(connection_socket.recv(2048))
         bob_sc = agreement(alice_pdh, bob_dh_secret)
         connection_socket.sendall(pickle.dumps(bob_dh_public))
-        print('shared secret = ', bob_sc)
+        print(colorize(f'shared secret = {bob_sc}', tf_presets.blue))
 
         #generate a symmetric key from the hash of the shared key
         bob_sym_key = generate_64b_key(str(bob_sc))
-        print('generated key = ', bob_sym_key)
+        print(colorize(f'generated key = {bob_sym_key}', tf_presets.blue))
 
         return bob_sym_key, alice_pk
 
