@@ -39,9 +39,10 @@ def handle_receive(sock):
             if not message_decrypted_hash:
                 print(colorize('ERROR: couldn\'t properly parse encrypted hashed message...', tf_presets.danger))
             
+            hash_match_flag = False
             if (message_hash == message_decrypted_hash):
-                #print('\nHash match.')
-                pass
+                hash_match_flag = True
+            
             else:
                 print(colorize("\nNot a hash match", tf_presets.danger))
                 print(f'encrypted hash:\t{rsa_decrypt(message_object["message_hash_encrypted"],cryptography.variables.alice_public_pair)}')

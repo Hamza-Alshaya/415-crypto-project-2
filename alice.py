@@ -40,16 +40,16 @@ def handle_receive(connection):
             if not message_decrypted_hash:
                 print(colorize('ERROR: couldn\'t properly parse encrypted hashed message...', tf_presets.danger))
             
+            hash_match_flag = False
             if (message_hash == message_decrypted_hash):
-                #print('\nHash match.')
-                pass
+                hash_match_flag = True
+
             else:
                 print(colorize("\nNot a hash match", tf_presets.danger))
                 print(f'encrypted hash:\t{rsa_decrypt(message_object["message_hash_encrypted"],cryptography.variables.bob_public_pair)}')
                 print(f'normal hash:\t{message_hash}')
                 print(f'md5(message):\t{md5_hash(message)}')
                 print(f'message: \"{message}\"')
-                exit(0)
             
             if (message_object['encrypted'] == False):
                 print(f"\n{colorize('Bob:', tf_presets.red)} {message}")
